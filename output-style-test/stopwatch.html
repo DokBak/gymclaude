@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>스톱워치</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-900 flex items-center justify-center p-6">
+  <main class="w-full max-w-sm rounded-3xl bg-slate-800 p-8 shadow-2xl text-center">
+    <h1 class="text-sm font-semibold uppercase tracking-widest text-slate-400 mb-4">스톱워치</h1>
+
+    <div
+      id="display"
+      class="font-mono text-6xl font-bold text-white tabular-nums mb-8"
+      aria-live="off"
+    >00:00:00</div>
+
+    <div class="flex gap-3">
+      <button
+        id="toggle"
+        class="flex-1 rounded-xl bg-emerald-500 py-3 font-semibold text-white hover:bg-emerald-600 transition"
+      >
+        시작
+      </button>
+      <button
+        id="reset"
+        class="flex-1 rounded-xl bg-slate-600 py-3 font-semibold text-white hover:bg-slate-500 transition"
+      >
+        리셋
+      </button>
+    </div>
+  </main>
+
+  <script>
+    const display = document.getElementById('display');
+    const toggleBtn = document.getElementById('toggle');
+    const resetBtn = document.getElementById('reset');
+
+    let running = false;
+    let startedAt = 0; // 마지막으로 시작한 시각 (performance.now 기준)
+    let elapsed = 0;   // 일시정지 전까지 누적된 시간 (ms)
+    let timerId = null;
+
+    // 밀리초(ms)를 받아 화면에 표시할 문자열로 바꿉니다.
+    function formatTime(ms) {
+      // TODO(human): ms를 "00:00:00" 형식 문자열로 변환하세요.
+      return '00:00:00';
+    }
+
+    function currentElapsed() {
+      return running ? elapsed + (performance.now() - startedAt) : elapsed;
+    }
+
+    function tick() {
+      display.textContent = formatTime(currentElapsed());
+    }
+
+    function start() {
+      running = true;
+      startedAt = performance.now();
+      timerId = setInterval(tick, 10);
+      toggleBtn.textContent = '일시정지';
+      toggleBtn.className =
+        'flex-1 rounded-xl bg-amber-500 py-3 font-semibold text-white hover:bg-amber-600 transition';
+    }
+
+    function pause() {
+      elapsed = currentElapsed();
+      running = false;
+      clearInterval(timerId);
+      tick();
+      toggleBtn.textContent = '시작';
+      toggleBtn.className =
+        'flex-1 rounded-xl bg-emerald-500 py-3 font-semibold text-white hover:bg-emerald-600 transition';
+    }
+
+    function reset() {
+      if (running) pause();
+      elapsed = 0;
+      tick();
+    }
+
+    toggleBtn.addEventListener('click', () => (running ? pause() : start()));
+    resetBtn.addEventListener('click', reset);
+
+    tick();
+  </script>
+</body>
+</html>

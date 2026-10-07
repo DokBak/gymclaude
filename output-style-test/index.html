@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>할 일 목록</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-100 flex items-start justify-center p-6">
+  <main class="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 mt-10">
+    <h1 class="text-2xl font-bold text-slate-800 mb-4">할 일 목록</h1>
+
+    <form id="todo-form" class="flex gap-2 mb-2">
+      <input
+        id="todo-input"
+        type="text"
+        placeholder="할 일을 입력하세요"
+        class="flex-1 rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+      />
+      <button
+        type="submit"
+        class="rounded-lg bg-indigo-500 px-4 py-2 font-semibold text-white hover:bg-indigo-600 transition"
+      >
+        추가
+      </button>
+    </form>
+    <p id="message" class="text-sm text-red-500 h-5 mb-2"></p>
+
+    <ul id="todo-list" class="space-y-2"></ul>
+    <p id="empty" class="text-center text-slate-400 py-6 hidden">할 일이 없습니다 🎉</p>
+  </main>
+
+  <script>
+    let todos = [];
+    let nextId = 1;
+
+    const form = document.getElementById('todo-form');
+    const input = document.getElementById('todo-input');
+    const list = document.getElementById('todo-list');
+    const empty = document.getElementById('empty');
+    const message = document.getElementById('message');
+
+    // 입력값을 검증해서 통과하면 정리된 문자열을, 거부하면 null을 반환합니다.
+    // 거부할 때는 message.textContent에 사유를 표시해 주세요.
+    function validateTodo(rawText) {
+      // TODO(human): 빈 문자열, 공백만 있는 입력, 중복 항목 등을 처리하세요.
+      return rawText.trim();
+    }
+
+    function addTodo(rawText) {
+      message.textContent = '';
+      const text = validateTodo(rawText);
+      if (text === null) return;
+      todos.push({ id: nextId++, text, done: false });
+      render();
+    }
+
+    function toggleTodo(id) {
+      const todo = todos.find((t) => t.id === id);
+      if (todo) todo.done = !todo.done;
+      render();
+    }
+
+    function deleteTodo(id) {
+      todos = todos.filter((t) => t.id !== id);
+      render();
+    }
+
+    function render() {
+      list.innerHTML = '';
+      empty.classList.toggle('hidden', todos.length > 0);
+
+      todos.forEach((todo) => {
+        const li = document.createElement('li');
+        li.className =
+          'flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = todo.done;
+        checkbox.className = 'h-5 w-5 accent-indigo-500 cursor-pointer';
+        checkbox.addEventListener('change', () => toggleTodo(todo.id));
+
+        const span = document.createElement('span');
+        span.textContent = todo.text;
+        span.className =
+          'flex-1 break-all ' +
+          (todo.done ? 'line-through text-slate-400' : 'text-slate-800');
+
+        const del = document.createElement('button');
+        del.textContent = '삭제';
+        del.className =
+          'rounded-md px-2 py-1 text-sm text-red-500 hover:bg-red-50 transition';
+        del.addEventListener('click', () => deleteTodo(todo.id));
+
+        li.append(checkbox, span, del);
+        list.appendChild(li);
+      });
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      addTodo(input.value);
+      input.value = '';
+      input.focus();
+    });
+
+    render();
+  </script>
+</body>
+</html>
